@@ -28,7 +28,7 @@ function Contact() {
       <p>Feel free to reach out for collaboration or just to say hi!</p>
       <p>Email: nirajandevhub108@gmail.com</p>
       <p>Phone: 6200164334</p>
-      <p>LinkedIn: <a href="linkedin.com/in/nirajan-singh-82b851190" target="_blank" rel="noopener noreferrer">Nirajan Singh</a></p>
+      <p>LinkedIn: <a href="https://www.linkedin.com/in/nirajan-singh-82b851190/" target="_blank" rel="noopener noreferrer">Nirajan Singh LinkedIn</a></p>
       <p>YouTube: <a href="https://www.youtube.com/@NirajanDevHub" target="_blank" rel="noopener noreferrer">My YouTube Channel</a></p>
       <p>Salesforce Trailhead: <a href="https://trailblazer.me/id/nirajansingh" target="_blank" rel="noopener noreferrer">My Trailhead Profile</a></p>
     </div>
