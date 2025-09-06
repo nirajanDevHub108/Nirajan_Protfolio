@@ -1,4 +1,4 @@
-name: protfolio - github-action
+name: portfolio - github-action
 
 on: push
 
@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults: 
         run:
-            working-directory: protfolio
+            working-directory: portfolio
     steps:
-     - name : Checkout to the Repository
-       uses : actions/checkout@v4
-     - name : Setup Node
-       uses : actions/node
+     - name: Checkout to the Repository
+       uses: actions/checkout@v4
+     - name: Setup Node
+       uses: actions/node
        with:
          node-version: '20.x'
 
@@ -20,11 +20,11 @@ jobs:
      - name: Install dependencies
        run: npm install
 
-     - name: Verify react scripst is installed
+     - name: Verify React script is installed
        run: ls -l node_modules/.bin
 
        # test the node  package
      - name: Run unit Test
-       run : npm  test -- --watchAll=false
+       run: npm  test -- --watchAll=false
 
 
