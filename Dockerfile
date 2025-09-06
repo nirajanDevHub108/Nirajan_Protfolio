@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # Step 2: Serve the App
-FROM node:18-alpine
+FROM node:18-alpine3.18
 WORKDIR /app
 
 RUN npm install -g serve
