@@ -36,7 +36,7 @@
                 steps {
                     sh '''
                         test -f build/index.html
-                        npm test -- --watch=false
+                        npm test -- --watch=false --reporters=default --reporters=jest-junit
                     '''
                 }
             }
@@ -44,7 +44,7 @@
             stage('End-to-End') {
                 agent {
                     docker {
-                        image 'mcr.microsoft.com' // Use latest 2025 stable image
+                        image 'mcr.microsoft.com/playwright:v1.57.0-noble' // Use latest 2025 stable image
                         reuseNode true
                     }
         }
@@ -62,7 +62,7 @@
 }
         post {
             always {
-                junit 'test-results/*.xml'
+                junit testResults: '**/test-results/*.xml', allowEmptyResults: true
             }
         }
     }
