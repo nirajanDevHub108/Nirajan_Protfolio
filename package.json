@@ -42,7 +42,6 @@
     ]
   },
   "devDependencies": {
-    "jest-junit": "^16.0.0",
-    "serve": "^14.2.5"
+    "jest-junit": "^16.0.0"
   }
 }
