@@ -2,7 +2,6 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
-
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -13,29 +12,23 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
-
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-
     "test": "CI=true react-scripts test --watchAll=false --reporters=default --reporters=jest-junit",
-
     "eject": "react-scripts eject"
   },
-
   "jest-junit": {
     "outputDirectory": "test-results",
     "outputName": "junit.xml",
     "suiteName": "React App Tests"
   },
-
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
   },
-
   "browserslist": {
     "production": [
       ">0.2%",
@@ -48,8 +41,8 @@
       "last 1 safari version"
     ]
   },
-
   "devDependencies": {
-    "jest-junit": "^16.0.0"
+    "jest-junit": "^16.0.0",
+    "serve": "^14.2.5"
   }
 }
