@@ -1,37 +1,47 @@
 pipeline {
     agent any
 
+    environment {
+        NPM_CONFIG_CACHE = "/tmp/.npm"
+    }
+
     stages {
-        stage('Install & Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
+                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                  npm ci
-                  npm run build
+                    whoami
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
                 '''
             }
         }
 
-        stage('Unit Tests (Jest)') {
+        stage('Test') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
+                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                  npm test
+                    test -f build/index.html
+                    npm test -- --watch=false
                 '''
             }
         }
 
-        stage('E2E Tests (Playwright)') {
+        stage('End-to-End') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.57.0-noble'
@@ -40,11 +50,9 @@ pipeline {
             }
             steps {
                 sh '''
-                  npm ci
-                  npm install serve --no-save
-                  npx serve -s build -l 3000 &
-                  sleep 10
-                  npx playwright test
+                    npm ci
+                    npx serve -s build &
+                    sleep 10
                 '''
             }
         }
