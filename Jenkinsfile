@@ -1,43 +1,46 @@
 pipeline {
     agent any
 
+    environment {
+        NPM_CONFIG_CACHE = "/tmp/.npm"
+    }
+
     stages {
-        // this is comment
         stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u root' // run container as root
+                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                    npm config set cache /tmp/.npm --global
-                    ls -la
+                    whoami
                     node --version
                     npm --version
                     npm ci
                     npm run build
-                    ls -la
                 '''
             }
         }
+
         stage('Test') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u root' // run container as root
+                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                test -f build/index.html
-                npm test
+                    test -f build/index.html
+                    npm test -- --watch=false
                 '''
             }
         }
+
         stage('End-to-End') {
             agent {
                 docker {
@@ -47,17 +50,18 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install serve --save-dev
-                    node_modules/.bin/serve -s build &
+                    npm ci
+                    npx serve -s build &
                     sleep 10
                     npx playwright test
                 '''
             }
         }
     }
+
     post {
         always {
             junit 'test-results/junit.xml'
         }
-      }
+    }
 }
