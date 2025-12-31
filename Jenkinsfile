@@ -1,69 +1,76 @@
 pipeline {
     agent any
 
-    environment {
-        // Shared cache for performance
-        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
-    }
-
     stages {
-        stage('Install & Build') {
+        /*
+
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u root' // Use root to avoid permission issues in Alpine
                 }
             }
             steps {
                 sh '''
+                    ls -la
+                    node --version
+                    npm --version
                     npm ci
                     npm run build
+                    ls -la
                 '''
             }
         }
+        */
 
         stage('Tests') {
             parallel {
-                stage('Unit Tests (Jest)') {
+                stage('Unit tests') {
                     agent {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
-                            args '-u root'
                         }
                     }
+
                     steps {
-                        // Use the already built modules from the first stage
-                        sh 'npm test -- --watchAll=false --reporters=default --reporters=jest-junit'
+                        sh '''
+                            #test -f build/index.html
+                            npm test
+                        '''
+                    }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
                     }
                 }
 
-                stage('End-to-End (Playwright)') {
+                stage('E2E') {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                             reuseNode true
                         }
                     }
+
                     steps {
                         sh '''
-                            npm ci
-                            npx serve -s build &
+                            npm install serve
+                            node_modules/.bin/serve -s build &
                             sleep 10
-
-                            PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
-                            npx playwright test tests/home.spec.js --reporter=junit
+                            npx playwright test  --reporter=html
                         '''
+                    }
+
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            junit testResults: '**/test-results/*.xml', allowEmptyResults: true
         }
     }
 }
