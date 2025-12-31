@@ -55,7 +55,7 @@
                 sleep 10
                 # Tell Playwright to output JUnit XML to the specific folder Jenkins expects
                 PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
-                npx playwright test tests/home.spec.js --reporter=junit
+                npx playwright test tests/home.spec.js  --reporter=html
             '''
         }
     }
