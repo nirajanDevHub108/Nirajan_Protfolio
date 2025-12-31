@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NPM_CONFIG_CACHE = "/tmp/.npm"
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
     }
 
     stages {
@@ -11,15 +11,17 @@ pipeline {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u node'
+                    args '-u root'
                 }
             }
             steps {
                 sh '''
-                    whoami
-                    node --version
-                    npm --version
-                    npm ci
+                    rm -rf node_modules package-lock.json
+                    
+                    # 2. Clean install
+                    npm install
+                    
+                    # 3. Build the app
                     npm run build
                 '''
             }
@@ -32,7 +34,7 @@ pipeline {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
-                            args '-u node'
+                            args '-u root'
                         }
                     }
                     steps {
