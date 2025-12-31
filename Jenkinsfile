@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        // Force npm to use a writable directory inside the workspace
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
+    }
 
     stages {
         /*
