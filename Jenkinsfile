@@ -2,24 +2,21 @@ pipeline {
     agent any
 
     environment {
-        NPM_CONFIG_CACHE = "/tmp/.npm"
+        // Shared cache for performance
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
     }
 
     stages {
-
-        stage('Build') {
+        stage('Install & Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u node'
+                    args '-u root' // Use root to avoid permission issues in Alpine
                 }
             }
             steps {
                 sh '''
-                    whoami
-                    node --version
-                    npm --version
                     npm ci
                     npm run build
                 '''
@@ -28,33 +25,33 @@ pipeline {
 
         stage('Tests') {
             parallel {
-
                 stage('Unit Tests (Jest)') {
                     agent {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
-                            args '-u node'
+                            args '-u root'
                         }
                     }
                     steps {
-                        sh '''
-                            test -f build/index.html
-                            npm test -- --watch=false --reporters=default --reporters=jest-junit
-                        '''
+                        // Use the already built modules from the first stage
+                        sh 'npm test -- --watchAll=false --reporters=default --reporters=jest-junit'
                     }
                 }
 
                 stage('End-to-End (Playwright)') {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                            image 'mcr.microsoft.com'
                             reuseNode true
                         }
                     }
                     steps {
                         sh '''
-                            npm ci
+                            # IMPORTANT: Only install Playwright browsers, do NOT run npm ci again
+                            # as it will break the Alpine-compiled node_modules
+                            npx playwright install --with-deps
+                            
                             npx serve -s build &
                             sleep 10
 
