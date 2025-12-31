@@ -47,25 +47,26 @@ pipeline {
                         }
                     }
                 }
+                stage('End-to-End') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            npm ci
+                            npx serve -s build &
+                            sleep 10
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
+                            npx playwright test tests/home.spec.js --reporter=junit
+                        '''
+                    }
+             }// end of end to end stage
             } // end parallel
         } // end stage Run Parallel Tests
 
-        stage('End-to-End') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.57.0-noble'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm ci
-                    npx serve -s build &
-                    sleep 10
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
-                    npx playwright test tests/home.spec.js --reporter=junit
-                '''
-            }
-        }
+        
     } // end stages
 } // end pipeline
