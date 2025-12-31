@@ -48,10 +48,7 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            # IMPORTANT: Only install Playwright browsers, do NOT run npm ci again
-                            # as it will break the Alpine-compiled node_modules
-                            npx playwright install --with-deps
-                            
+                            npm ci
                             npx serve -s build &
                             sleep 10
 
