@@ -13,24 +13,12 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "test": "react-scripts test --watchAll=false",
-  "test:ci": "CI=true react-scripts test --reporters=default --reporters=jest-junit",
-  "test:e2e": "playwright test",
-  "eject": "react-scripts eject"
-},
-  "jest": {
-    "reporters": [
-      "default",
-      [
-        "jest-junit",
-        {
-          "outputDirectory": "test-results",
-          "outputName": "jest.xml"
-        }
-      ]
-    ]
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --watchAll=false",
+    "test:ci": "CI=true react-scripts test --reporters=default --reporters=jest-junit",
+    "test:e2e": "playwright test",
+    "eject": "react-scripts eject"
   },
   "jest-junit": {
     "outputDirectory": "test-results",
