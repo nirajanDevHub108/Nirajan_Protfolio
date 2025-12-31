@@ -42,7 +42,7 @@ pipeline {
                     }
                     post {
                         always {
-                            junit 'jest-results/junit.xml'
+                            junit testResults: '**/test-results/*.xml', allowEmptyResults: true
                         }
                     }
                 }
@@ -60,7 +60,7 @@ pipeline {
                             npm install serve
                             node_modules/.bin/serve -s build &
                             sleep 10
-                            npx playwright test  --reporter=html
+                            npx playwright test tests/home.spec.js --reporter=junit
                         '''
                     }
 
