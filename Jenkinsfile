@@ -1,80 +1,69 @@
-pipeline {
-    agent any
-    environment {
-        // Force npm to use a writable directory inside the workspace
-        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
-    }
+    pipeline {
+        agent any
 
-    stages {
-        /*
-
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm ci
-                    npm run build
-                    ls -la
-                '''
-            }
+        environment {
+            NPM_CONFIG_CACHE = "/tmp/.npm"
         }
-        */
 
-        stage('Tests') {
-            parallel {
-                stage('Unit tests') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            #test -f build/index.html
-                            npm test
-                        '''
-                    }
-                    post {
-                        always {
-                            junit testResults: '**/test-results/*.xml', allowEmptyResults: true
-                        }
+        stages {
+            stage('Build') {
+                agent {
+                    docker {
+                        image 'node:18-alpine'
+                        reuseNode true
+                        args '-u node'
                     }
                 }
-
-                stage('E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            npm ci
-                            npx serve -s build &
-                            sleep 10
-                            npx playwright test tests/home.spec.js --reporter=junit
-                        '''
-                    }
-
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
-                    }
+                steps {
+                    sh '''
+                        whoami
+                        node --version
+                        npm --version
+                        npm ci
+                        npm run build
+                    '''
                 }
             }
+
+            stage('Test') {
+                agent {
+                    docker {
+                        image 'node:18-alpine'
+                        reuseNode true
+                        args '-u node'
+                    }
+                }
+                steps {
+                    sh '''
+                        test -f build/index.html
+                        npm test -- --watch=false --reporters=default --reporters=jest-junit
+                    '''
+                }
+            }
+
+            stage('End-to-End') {
+                agent {
+                    docker {
+                        image 'mcr.microsoft.com/playwright:v1.57.0-noble' // Use latest 2025 stable image
+                        reuseNode true
+                    }
+        }
+        steps {
+            sh '''
+                npm ci
+                npx serve -s build &
+                sleep 10
+                # Tell Playwright to output JUnit XML to the specific folder Jenkins expects
+                PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
+                npx playwright test tests/home.spec.js --reporter=junit
+            '''
         }
     }
+
 }
+        post {
+            always {
+                junit testResults: '**/test-results/*.xml', allowEmptyResults: true
+            }
+        }
+    }
