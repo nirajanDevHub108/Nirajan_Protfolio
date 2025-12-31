@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm-cache"
+        NPM_CONFIG_CACHE = "/tmp/.npm"
     }
 
     stages {
@@ -11,17 +11,15 @@ pipeline {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u root'
+                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                    rm -rf node_modules package-lock.json
-                    
-                    # 2. Clean install
-                    npm install
-                    
-                    # 3. Build the app
+                    whoami
+                    node --version
+                    npm --version
+                    npm ci
                     npm run build
                 '''
             }
@@ -34,13 +32,13 @@ pipeline {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
-                            args '-u root'
+                            args '-u node'
                         }
                     }
                     steps {
                         sh '''
                             test -f build/index.html
-                            npm test -- --watch=false --reporters=default --reporters=jest-junit 
+                            npm test -- --watch=false --reporters=default --reporters=jest-junit
                         '''
                     }
                     post {
@@ -49,26 +47,25 @@ pipeline {
                         }
                     }
                 }
-                stage('End-to-End') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.57.0-noble'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        sh '''
-                            npm ci
-                            npx serve -s build &
-                            sleep 10
-                            PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
-                            npx playwright test tests/home.spec.js --reporter=junit
-                        '''
-                    }
-             }// end of end to end stage
             } // end parallel
         } // end stage Run Parallel Tests
 
-        
+        stage('End-to-End') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm ci
+                    npx serve -s build &
+                    sleep 10
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
+                    npx playwright test tests/home.spec.js --reporter=junit
+                '''
+            }
+        }
     } // end stages
 } // end pipeline
