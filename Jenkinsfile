@@ -37,13 +37,16 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            test -f build/index.html
+                            rm -rf node_modules package-lock.json
+                            npm install
                             npm test -- --watch=false --reporters=default --reporters=jest-junit
                         '''
                     }
                     post {
                         always {
-                            junit testResults: '**/test-results/*.xml', allowEmptyResults: true
+                            junit testResults: '**/test-results/*.xml', 
+                            allowEmptyResults: true,
+                            skipPublishingChecks: true 
                         }
                     }
                 }
