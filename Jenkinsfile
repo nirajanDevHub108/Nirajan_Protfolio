@@ -75,12 +75,12 @@ pipeline {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u node' 
+                    args '-u root' 
                 }
             }
             steps {
                 sh '''
-                    npm install netlify-cli 
+                    npx install netlify-cli -g 
                     node_modules/.bin/netlify --version 
                     echo "Deploying to production . Site Id: $NETLIFY_SITE_ID"
 
