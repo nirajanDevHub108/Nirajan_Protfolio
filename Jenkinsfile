@@ -82,6 +82,7 @@ pipeline {
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deploying to production . Site Id: $NETLIFY_SITE_ID"
+                    npm run build
                     node_modules/.bin/netlify status
 
                     ls -ld build || echo "Build folder missing!"
