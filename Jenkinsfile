@@ -93,6 +93,7 @@ pipeline {
                     ./node_modules/.bin/netlify deploy \
                         --dir=build \
                         --prod \
+                        --no-build \
                         --site=$NETLIFY_SITE_ID \
                         --auth=$NETLIFY_AUTH_TOKEN \
                         --message="Jenkins Build #${BUILD_NUMBER}"
