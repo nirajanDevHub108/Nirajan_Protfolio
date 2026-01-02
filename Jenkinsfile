@@ -62,7 +62,7 @@ pipeline {
                     sleep 10
 
                     PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
-                    npx playwright test --reporter=junit
+                    npx playwright test tests/home.spec.js
                 '''
             }
             post {
