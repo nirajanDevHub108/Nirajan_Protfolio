@@ -83,7 +83,15 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploying to production . Site Id: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
+
+                    ls -ld build || echo "Build folder missing!"
+
+                    ./node_modules/.bin/netlify deploy \
+                        --dir=build \
+                        --prod \
+                        --site=$NETLIFY_SITE_ID \
+                        --auth=$NETLIFY_AUTH_TOKEN \
+                        --message="Jenkins Build ${BUILD_NUMBER}"
 
                 '''
             }
