@@ -1,3 +1,4 @@
+import { test, expect } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
@@ -6,4 +7,3 @@ test('renders home heading', () => {
   const heading = screen.getByText(/hello, i'm nirajan singh/i);
   expect(heading).toBeInTheDocument();
 });
-
