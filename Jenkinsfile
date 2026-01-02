@@ -38,7 +38,7 @@ pipeline {
             steps {
                 sh '''
                     npm ci
-                    npm test -- --watchAll=false
+                    npm test -- --watch=false --reporters=default --reporters=jest-junit
                 '''
             }
             post {
@@ -57,12 +57,8 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm ci
-                    npx serve -s build -l 3000 &
-                    sleep 10
-
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
-                    npx playwright test tests/home.spec.js
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \ 
+                    npx playwright test tests/home.spec.js --reporter=junit
                 '''
             }
             post {
