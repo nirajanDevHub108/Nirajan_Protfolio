@@ -5,57 +5,50 @@ pipeline {
         NPM_CONFIG_CACHE = "/tmp/.npm"
         NETLIFY_SITE_ID = '1fe4e804-c4e0-435c-ab95-e19aa36773ef'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        JEST_JUNIT_OUTPUT_DIR = "test-results"
     }
 
     stages {
-        stage('Build') {
+
+        stage('Install & Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                    whoami
-                    node --version
-                    npm --version
+                    node -v
+                    npm -v
                     npm ci
                     npm run build
+                    ls -ld build
                 '''
             }
         }
 
-        stage('Run Parallel Tests') {
-            parallel {
-                stage('Test') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                            args '-u node'
-                        }
-                    }
-                    steps {
-                        sh '''
-                            rm -rf node_modules package-lock.json
-                            npm install
-                            npm test -- --watch=false --reporters=default --reporters=jest-junit
-                        '''
-                    }
-                    post {
-                        always {
-                            junit testResults: '**/test-results/*.xml', 
-                            allowEmptyResults: true,
-                            skipPublishingChecks: true 
-                        }
-                    }
+        stage('Unit Tests (Jest)') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
                 }
-            } // end parallel
-        } // end stage Run Parallel Tests
+            }
+            steps {
+                sh '''
+                    npm ci
+                    npm test -- --watchAll=false
+                '''
+            }
+            post {
+                always {
+                    junit testResults: '**/test-results/*.xml', allowEmptyResults: true
+                }
+            }
+        }
 
-        stage('End-to-End') {
+        stage('E2E Tests (Playwright)') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.57.0-noble'
@@ -64,38 +57,41 @@ pipeline {
             }
             steps {
                 sh '''
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
-                    npx playwright test tests/home.spec.js --reporter=junit
+                    npm ci
+                    npx serve -s build -l 3000 &
+                    sleep 10
+
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
+                    npx playwright test --reporter=junit
                 '''
             }
+            post {
+                always {
+                    junit testResults: '**/test-results/*.xml', allowEmptyResults: true
+                }
+            }
         }
-        stage('Deploy') {
+
+        stage('Deploy to Netlify') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u node'
                 }
             }
             steps {
                 sh '''
-                    npm install netlify-cli
-                    node_modules/.bin/netlify --version
-                    echo "Deploying to production . Site Id: $NETLIFY_SITE_ID"
-                    npm run build
-                    node_modules/.bin/netlify status
+                    npm install -g netlify-cli
+                    netlify --version
 
-                    ls -ld build || echo "Build folder missing!"
-
-                    ./node_modules/.bin/netlify deploy \
-                        --dir=build \
-                        --prod \
-                        --site=$NETLIFY_SITE_ID \
-                        --auth=$NETLIFY_AUTH_TOKEN \
-                        --message="Jenkins Build ${BUILD_NUMBER}"
-
+                    netlify deploy \
+                      --dir=build \
+                      --prod \
+                      --site=$NETLIFY_SITE_ID \
+                      --auth=$NETLIFY_AUTH_TOKEN \
+                      --message="Jenkins Build #${BUILD_NUMBER}"
                 '''
             }
         }
-    } // end stages
-} // end pipeline
+    }
+}
