@@ -6,6 +6,8 @@ pipeline {
         NETLIFY_SITE_ID = '1fe4e804-c4e0-435c-ab95-e19aa36773ef'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         JEST_JUNIT_OUTPUT_DIR = "test-results"
+        # This tells the CLI that there is no build command for this session
+
     }
 
     stages {
@@ -92,7 +94,6 @@ pipeline {
                     ./node_modules/.bin/netlify deploy \
                         --dir=build \
                         --prod \
-                        --build=false \
                         --site=$NETLIFY_SITE_ID \
                         --auth=$NETLIFY_AUTH_TOKEN \
                         --message="Jenkins Build #${BUILD_NUMBER}"
