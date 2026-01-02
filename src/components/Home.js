@@ -25,7 +25,7 @@ function Home() {
   return (
     <section id="home" style={sectionStyle}>
       <div style={overlayStyle}>
-        <h1>Hello, I'm Nirajan 👋</h1>
+        <h1>Hello, I'm Nirajan Singh 👋</h1>
         <p>A passionate Salesforce & DevOps engineer exploring the cloud & AI space.</p>
       </div>
     </section>
