@@ -1,6 +1,7 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test('homepage loads', async ({ page }) => {
-  await page.goto('http://localhost:3000');
+  // Uses the baseURL from config (http://localhost:3000)
+  await page.goto('/'); 
   await expect(page.getByText("Hello, I'm Nirajan")).toBeVisible();
 });

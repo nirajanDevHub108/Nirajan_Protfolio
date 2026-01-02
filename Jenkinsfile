@@ -59,9 +59,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm ci
-                    npx serve -s build &
-                    sleep 10
                     PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \
                     npx playwright test tests/home.spec.js --reporter=junit
                 '''
