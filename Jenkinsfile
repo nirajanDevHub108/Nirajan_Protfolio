@@ -87,9 +87,12 @@ pipeline {
 
                     node_modules/.bin/netlify status
 
+                    if [ ! -d "build" ]; then echo "Error: build directory not found"; exit 1; fi
+
                     ./node_modules/.bin/netlify deploy \
                         --dir=build \
                         --prod \
+                        --build=false \
                         --site=$NETLIFY_SITE_ID \
                         --auth=$NETLIFY_AUTH_TOKEN \
                         --message="Jenkins Build #${BUILD_NUMBER}"
