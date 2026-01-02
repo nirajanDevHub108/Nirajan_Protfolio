@@ -57,8 +57,10 @@ pipeline {
             }
             steps {
                 sh '''
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-results.xml \ 
-                    npx playwright test tests/home.spec.js --reporter=junit
+                   
+                    # Playwright will now automatically run 'npx serve' based on the config
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
+                    npx playwright test --reporter=junit
                 '''
             }
             post {
