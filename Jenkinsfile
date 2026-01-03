@@ -100,5 +100,26 @@ pipeline {
                 '''
             }
         }
+        stage('PROD E2E Tests ') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                   
+                    # Playwright will now automatically run 'npx serve' based on the config
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
+                    npx playwright test --reporter=junit
+                '''
+            }
+            post {
+                always {
+                    junit testResults: '**/test-results/*.xml', allowEmptyResults: true
+                }
+            }
+        }
     }
 }
