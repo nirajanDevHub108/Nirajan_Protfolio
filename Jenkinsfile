@@ -100,18 +100,22 @@ pipeline {
                 '''
             }
         }
-        stage('PROD E2E Tests ') {
+        stage('PROD E2E Tests') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.57.0-noble'
                     reuseNode true
                 }
             }
+            environment {
+                PLAYWRIGHT_BASE_URL = 'https://nirajandevhub.netlify.app'
+                CI = 'true'
+            }
             steps {
                 sh '''
-                   
-                    # Playwright will now automatically run 'npx serve' based on the config
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright.xml \
+                    echo "Running PROD E2E tests against $PLAYWRIGHT_BASE_URL"
+
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-results/playwright-prod.xml \
                     npx playwright test --reporter=junit
                 '''
             }
@@ -121,5 +125,6 @@ pipeline {
                 }
             }
         }
+
     }
 }
