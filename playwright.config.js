@@ -1,25 +1,30 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const isCI = !!process.env.CI;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+
 export default defineConfig({
-  testDir: './tests',         // Only look for E2E tests in the tests folder
-  testIgnore: '**/src/**',    // Explicitly ignore Jest unit tests in src/
-  
-  webServer: {
-    command: 'npx serve -s build -l 3000',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI, // true locally, false in Jenkins
-    timeout: 120 * 1000,
-  },
-  
+  testDir: './tests',
+  testIgnore: '**/src/**',
+
+  // 🔴 Only start local server when testing LOCAL build
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command: 'npx serve -s build -l 3000',
+        url: 'http://localhost:3000',
+        reuseExistingServer: !isCI,
+        timeout: 120 * 1000,
+      },
+
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
 
-  // Configure projects for cross-browser coverage
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
 });
