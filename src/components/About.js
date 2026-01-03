@@ -26,7 +26,7 @@ function About() {
       <div style={overlayStyle}>
       <h2>About Me</h2>
       <p>
-      I am a seasoned Salesforce DevOps Engineer with expertise in release management, release engineering, and extensive knowledge of the Salesforce platform.
+      I am a seasoned Salesforce DevOps Engineer with 2.5 years expertise in release management, release engineering, and extensive knowledge of the Salesforce platform.
       I hold certifications as a Salesforce Platform Developer I, Administrator, AI Associate, and 1x SFDC DevOps. 
       With a proven track record of implementing robust DevOps practices, designing and executing CI/CD pipelines, and managing metadata migrations and version control, 
       I am skilled in driving efficiency within Agile environments. Proficient in tools such as Jenkins, Copado, Gearset, and Azure DevOps, 
